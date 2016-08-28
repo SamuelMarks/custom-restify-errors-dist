@@ -59,11 +59,14 @@ function WaterlineError(wl_error, statusCode) {
         restCode: this.name,
         body: Object.assign({
             error: {
-                23505: 'unique_violation'
+                23505: 'unique_violation',
+                E_UNIQUE: 'unique_violation'
             }[wl_error.code],
             error_message: wl_error.reason || wl_error.detail
         }, (function (o) { return Object.keys(o.error_metadata).length > 0 ? o : {}; })({
-            error_metadata: Object.assign({}, wl_error.invalidAttributes ? { invalidAttributes: wl_error.invalidAttributes } : {}, wl_error.details ? { details: wl_error.details.split('\n') } : {})
+            error_metadata: Object.assign({}, wl_error.invalidAttributes
+                && wl_error.invalidAttributes.length !== 1
+                || wl_error.invalidAttributes[0] !== undefined ? { invalidAttributes: wl_error.invalidAttributes } : {}, wl_error.details ? { details: wl_error.details.split('\n') } : {})
         }))
     });
 }
