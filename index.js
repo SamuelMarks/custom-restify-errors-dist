@@ -52,8 +52,11 @@ util_1.inherits(NotFoundError, restify_1.RestError);
 function WaterlineError(wl_error, statusCode) {
     if (statusCode === void 0) { statusCode = 400; }
     this.name = 'WaterlineError';
+    var msg = wl_error.detail !== undefined ?
+        wl_error.detail : wl_error.reason !== undefined && wl_error.reason !== 'Encountered an unexpected error' ?
+        wl_error.reason : wl_error.message;
     restify_1.RestError.call(this, {
-        message: wl_error.reason || wl_error.detail,
+        message: msg,
         statusCode: statusCode,
         constructorOpt: WaterlineError,
         restCode: this.name,
@@ -62,7 +65,7 @@ function WaterlineError(wl_error, statusCode) {
                 23505: 'unique_violation',
                 E_UNIQUE: 'unique_violation'
             }[wl_error.code],
-            error_message: wl_error.reason || wl_error.detail
+            error_message: msg
         }, (function (o) { return Object.keys(o.error_metadata).length > 0 ? o : {}; })({
             error_metadata: Object.assign({}, wl_error.invalidAttributes
                 && wl_error.invalidAttributes.length !== 1
