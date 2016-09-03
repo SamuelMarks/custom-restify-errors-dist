@@ -53,7 +53,8 @@ function WaterlineError(wl_error, statusCode) {
     if (statusCode === void 0) { statusCode = 400; }
     this.name = 'WaterlineError';
     var msg = wl_error.detail !== undefined ?
-        wl_error.detail : wl_error.reason !== undefined && wl_error.reason !== 'Encountered an unexpected error' ?
+        wl_error.detail : wl_error.reason !== undefined && [
+        'Encountered an unexpected error', '1 attribute is invalid'].indexOf(wl_error.reason) < -1 ?
         wl_error.reason : wl_error.message;
     restify_1.RestError.call(this, {
         message: msg,
@@ -64,12 +65,15 @@ function WaterlineError(wl_error, statusCode) {
             error: {
                 23505: 'unique_violation',
                 E_UNIQUE: 'unique_violation'
-            }[wl_error.code],
+            }[wl_error.code] || wl_error.code,
+            error_code: wl_error.code,
             error_message: msg
         }, (function (o) { return Object.keys(o.error_metadata).length > 0 ? o : {}; })({
             error_metadata: Object.assign({}, wl_error.invalidAttributes
-                && wl_error.invalidAttributes.length !== 1
-                || wl_error.invalidAttributes[0] !== undefined ? { invalidAttributes: wl_error.invalidAttributes } : {}, wl_error.details ? { details: wl_error.details.split('\n') } : {})
+                && (Object.keys(wl_error.invalidAttributes).length !== 1
+                    || JSON.stringify(wl_error.invalidAttributes) !== '{"0":[]}')
+                ? { invalidAttributes: wl_error.invalidAttributes } : {}, wl_error.details && wl_error.details !== 'Invalid attributes sent to undefined:\n \u2022 0\n'
+                ? { details: wl_error.details.split('\n') } : {})
         }))
     });
 }
