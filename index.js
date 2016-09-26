@@ -37,6 +37,23 @@ function GenericError(args) {
 }
 exports.GenericError = GenericError;
 util_1.inherits(GenericError, restify_1.RestError);
+function AuthError(msg, statusCode) {
+    if (msg === void 0) { msg = ''; }
+    if (statusCode === void 0) { statusCode = 401; }
+    this.name = 'AuthError';
+    restify_1.RestError.call(this, {
+        restCode: this.name,
+        statusCode: statusCode,
+        message: msg,
+        constructorOpt: AuthError,
+        body: {
+            error: this.name,
+            error_message: msg
+        }
+    });
+}
+exports.AuthError = AuthError;
+util_1.inherits(AuthError, restify_1.RestError);
 function NotFoundError(entity, msg) {
     if (entity === void 0) { entity = 'Entity'; }
     if (msg === void 0) { msg = entity + " not found"; }
