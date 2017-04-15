@@ -1,6 +1,7 @@
 "use strict";
-var restify_1 = require('restify');
-var util_1 = require('util');
+Object.defineProperty(exports, "__esModule", { value: true });
+var restify_1 = require("restify");
+var util_1 = require("util");
 function fmtError(error, statusCode) {
     if (statusCode === void 0) { statusCode = 400; }
     if (!error)
@@ -76,7 +77,8 @@ function WaterlineError(wl_error, statusCode) {
     this.name = 'WaterlineError';
     var msg = wl_error.detail !== undefined ?
         wl_error.detail : wl_error.reason !== undefined && [
-        'Encountered an unexpected error', '1 attribute is invalid'].indexOf(wl_error.reason) < -1 ?
+        'Encountered an unexpected error', '1 attribute is invalid'
+    ].indexOf(wl_error.reason) < -1 ?
         wl_error.reason : wl_error.message;
     restify_1.RestError.call(this, {
         message: msg,
