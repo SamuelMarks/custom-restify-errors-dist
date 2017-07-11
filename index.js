@@ -112,7 +112,14 @@ exports.fmtError = (error, statusCode = 400) => {
     else if (['status', 'text', 'method', 'path'].map(k => error.hasOwnProperty(k)).filter(v => v).length === Object.keys(error).length)
         return new exports.IncomingMessageError(error);
     else {
-        Object.keys(error).map(k => console.error(k, '=', error[k]));
+        Object.keys(error).map(k => console.error(`error.${k} =`, error[k]));
+        if (error instanceof Error)
+            return new exports.GenericError({
+                name: error.name,
+                error: `${error.name}::${error.message}`,
+                error_message: error.message,
+                statusCode: 500
+            });
         throw TypeError('Unhandled input to fmtError:' + error);
     }
 };
