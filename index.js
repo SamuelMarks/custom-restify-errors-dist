@@ -92,6 +92,20 @@ exports.IncomingMessageError = function (error) {
     });
 };
 util_1.inherits(exports.IncomingMessageError, restify_errors_1.RestError);
+exports.TypeOrmError = function (error) {
+    this.name = 'TypeOrmError';
+    restify_errors_1.RestError.call(this, {
+        restCode: this.name,
+        statusCode: 400,
+        message: error.message,
+        constructorOpt: exports.TypeOrmError,
+        body: {
+            error: this.name,
+            error_message: error.message
+        }
+    });
+};
+util_1.inherits(exports.TypeOrmError, restify_errors_1.RestError);
 exports.fmtError = (error, statusCode = 400) => {
     if (error == null)
         return null;
@@ -109,6 +123,8 @@ exports.fmtError = (error, statusCode = 400) => {
             error_message: error,
             statusCode
         });
+    else if (Object.getOwnPropertyNames(error).indexOf('stack') > -1 && error.stack.toString().indexOf('typeorm') > -1)
+        return new exports.TypeOrmError(error);
     else if (['status', 'text', 'method', 'path'].map(k => error.hasOwnProperty(k)).filter(v => v).length === Object.keys(error).length)
         return new exports.IncomingMessageError(error);
     else {
