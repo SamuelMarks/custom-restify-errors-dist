@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const restify_errors_1 = require("restify-errors");
 const util_1 = require("util");
+const restify_errors_1 = require("restify-errors");
 exports.GenericError = function (args) {
     this.name = args.name || args.error;
     return restify_errors_1.RestError.call(this, {
@@ -138,4 +138,10 @@ exports.fmtError = (error, statusCode = 400) => {
             });
         throw TypeError('Unhandled input to fmtError:' + error);
     }
+};
+exports.restCatch = (req, res, next) => (err) => {
+    if (err != null)
+        return next(exports.fmtError(err));
+    res.json(200, req.body);
+    return next();
 };
