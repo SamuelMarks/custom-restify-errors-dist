@@ -7,18 +7,20 @@ exports.GenericErrorBase = restify_errors.makeConstructor('GenericError', {
 });
 class GenericError extends exports.GenericErrorBase {
     constructor(generic_error) {
-        super(generic_error.name || 'GenericError');
+        const name = generic_error.name == null ? 'GenericError' : generic_error.name;
+        super(name);
+        this.code = this.displayName = this.name = name;
         this.message = `${generic_error.name}: ${generic_error.message}`;
         this.statusCode = generic_error.statusCode || 400;
         this.cause = () => generic_error.cause;
-        this.info = this.body = Object.assign({
+        this.info = this.jse_info = this.body = Object.assign({
             code: this.code, error: this.name, error_message: generic_error.message
         }, this.hasOwnProperty('_meta') && this._meta ?
             { _meta: this._meta } : {});
         if (generic_error.info != null)
             this.jse_info = generic_error.info;
-        /*error: args.error,
-        error_message: args.error_message*/
+        // HACK
+        this.toJSON = () => this.jse_info;
     }
 }
 exports.GenericError = GenericError;
@@ -74,7 +76,7 @@ class TypeOrmError extends GenericError {
     }
 }
 exports.TypeOrmError = TypeOrmError;
-exports.fmtError = (error, statusCode = 400) => {
+exports.fmtError = (error, statusCode) => {
     if (error == null)
         return null;
     else if (error.originalError != null) {
@@ -85,16 +87,11 @@ exports.fmtError = (error, statusCode = 400) => {
     if (error instanceof restify_errors_1.RestError)
         return error;
     else if (error.hasOwnProperty('_e') && error._e.stack && error._e.stack.indexOf('WLError') > -1)
-        return new GenericError({
-            name: 'WLError',
-            cause: error._e,
-            message: error.hasOwnProperty('details') && error.details.length ? error.details : error.message,
-            statusCode
-        });
+        return new WaterlineError(error._e, statusCode);
     else if (Object.getOwnPropertyNames(error).indexOf('stack') > -1 && error.stack.toString().indexOf('typeorm') > -1)
         return new TypeOrmError(error);
     else if (['status', 'text', 'method', 'path'].map(k => error.hasOwnProperty(k)).filter(v => v).length === Object.keys(error).length)
-        return new IncomingMessageError(error);
+        return new IncomingMessageError(error, statusCode);
     else {
         Object.keys(error).map(k => console.error(`error.${k} =`, error[k]));
         if (error instanceof Error)
