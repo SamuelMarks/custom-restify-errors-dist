@@ -23,13 +23,13 @@ class GenericError extends exports.GenericErrorBase {
 }
 exports.GenericError = GenericError;
 class AuthError extends GenericError {
-    constructor(cause, message, statusCode = 403) {
+    constructor(message, statusCode = 403, cause) {
         super({ name: 'AuthError', cause, message, statusCode });
     }
 }
 exports.AuthError = AuthError;
 class NotFoundError extends GenericError {
-    constructor(cause, entity = 'Entity', message = `${entity} not found`, statusCode = 404) {
+    constructor(entity = 'Entity', message = `${entity} not found`, statusCode = 404, cause) {
         super({ name: 'NotFoundError', cause, message, statusCode });
     }
 }
