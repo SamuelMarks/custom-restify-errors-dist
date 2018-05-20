@@ -19,8 +19,10 @@ class GenericError extends exports.GenericErrorBase {
             { _meta: this._meta } : {});
         if (generic_error.info != null)
             this.jse_info = generic_error.info;
-        // HACK
-        this.toJSON = () => this.jse_info;
+    }
+    // HACK
+    toJSON() {
+        return this.jse_info;
     }
 }
 exports.GenericError = GenericError;
@@ -61,10 +63,10 @@ class IncomingMessageError extends GenericError {
         super({
             name: 'IncomingMessageError',
             cause: error,
-            message: `${error.status} ${error.method} ${error.path}`,
+            message: `${error.statusCode} ${error.method} ${error.path}\n${JSON.stringify(error.headers)}`,
             statusCode
         });
-        // error: `${error.status} ${error.method} ${error.path}`
+        // error: `${error.statusCode} ${error.method} ${error.path}`
         // error_message: error.text
         // message: `${error_title} ${error.text}`,
     }
@@ -90,8 +92,11 @@ exports.fmtError = (error, statusCode) => {
         return new WaterlineError(error._e, statusCode);
     else if (Object.getOwnPropertyNames(error).indexOf('stack') > -1 && error.stack.toString().indexOf('typeorm') > -1)
         return new TypeOrmError(error);
-    else if (['status', 'text', 'method', 'path'].map(k => error.hasOwnProperty(k)).filter(v => v).length === Object.keys(error).length)
-        return new IncomingMessageError(error, statusCode);
+    else if (['statusCode', 'path', 'method', 'headers']
+        .map(k => error.hasOwnProperty(k))
+        .filter(v => v)
+        .length <= Object.keys(error).length)
+        return new IncomingMessageError(error, error.statusCode);
     else {
         Object.keys(error).map(k => console.error(`error.${k} =`, error[k]));
         if (error instanceof Error)
