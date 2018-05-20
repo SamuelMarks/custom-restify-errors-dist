@@ -63,7 +63,8 @@ class IncomingMessageError extends GenericError {
         super({
             name: 'IncomingMessageError',
             cause: error,
-            message: `${error.statusCode} ${error.method} ${error.path}\n${JSON.stringify(error.headers)}`,
+            message: `${error.statusCode}${error.method ? ' ' + error.method : ''} ${error.path()}\n
+                ${JSON.stringify(error.headers)}`,
             statusCode
         });
         // error: `${error.statusCode} ${error.method} ${error.path}`
