@@ -67,7 +67,7 @@ class IncomingMessageError extends GenericError {
             info: {
                 statusCode: error.statusCode || statusCode,
                 method: error.method,
-                path: error.path(),
+                path: error.path,
                 headers: error.headers
             },
             statusCode: error.statusCode || statusCode
